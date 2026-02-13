@@ -1,8 +1,7 @@
-name: Scheduled deploy
+name: Pushed deploy & test
 
 on:
-  schedule:
-    - cron: "0 6 * * *"
+  push:
   workflow_dispatch:
 
 jobs:
@@ -11,9 +10,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Setup Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v4
         with:
           node-version: "18"
       - name: Install dependencies
@@ -27,9 +26,9 @@ jobs:
     needs: build
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Setup Node.js and cache
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v4
         with:
           node-version: "18"
           cache: "npm"
@@ -40,7 +39,8 @@ jobs:
           echo "${{ secrets.FIREBASE_KEY }}" | base64 -d > ./firebase-key.json
           echo "GOOGLE_APPLICATION_CREDENTIALS=${{ github.workspace }}/firebase-key.json" >> $GITHUB_ENV
       - name: change space
-        run: ./node_modules/.bin/firebase use ${{ secrets.FIREBASE_PROJECT_ID }}
+        run: |
+          ./node_modules/.bin/firebase use ${{ secrets.FIREBASE_PROJECT_ID }}
       - name: Deploy to Firebase Hosting
         run: |
           ./node_modules/.bin/firebase deploy
